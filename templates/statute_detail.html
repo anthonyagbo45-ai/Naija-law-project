@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ statute.abbreviation }} | Nigerian Law Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-emerald-900 text-white p-4 shadow-md">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <a href="/laws" class="text-xl font-bold flex items-center gap-2">
+                <span>📜</span> Nigerian Law Portal
+            </a>
+            <div class="flex items-center gap-4 text-sm">
+                <a href="/laws" class="text-emerald-200 hover:text-white transition-colors">← Back to Laws</a>
+                <span class="text-emerald-700">|</span>
+                <span class="text-slate-300">{{ current_user.full_name }}</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto p-6">
+
+        <!-- Header Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
+            <div class="flex items-center gap-3 mb-3">
+                <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-md">
+                    {{ statute.abbreviation }}
+                </span>
+                <span class="bg-slate-100 text-slate-600 text-xs font-semibold px-3 py-1 rounded-md">
+                    {{ statute.jurisdiction }}
+                </span>
+                <span class="text-xs text-slate-500 font-medium">
+                    Category: {{ statute.category }}
+                </span>
+            </div>
+
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight mb-3">
+                {{ statute.title }}
+            </h1>
+
+            <p class="text-slate-600 leading-relaxed">
+                {{ statute.description }}
+            </p>
+        </div>
+
+        <!-- Section Search & Filter -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-slate-900">
+                Sections & Provisions ({{ sections|length }})
+            </h2>
+
+            <form action="/laws/{{ statute.id }}" method="GET" class="flex gap-2">
+                <input type="text" name="q" value="{{ section_query }}" 
+                    placeholder="Search sections..." 
+                    class="px-3.5 py-1.5 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-white">
+                <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-1.5 rounded-lg text-sm font-medium">
+                    Search
+                </button>
+            </form>
+        </div>
+
+        <!-- Sections List -->
+        {% if sections %}
+            <div class="space-y-4">
+                {% for section in sections %}
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:border-emerald-300 transition-colors">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded">
+                                {{ section.section_number }}
+                            </span>
+                            {% if section.title %}
+                                <h3 class="text-base font-bold text-slate-900 flex-1 ml-3">
+                                    {{ section.title }}
+                                </h3>
+                            {% endif %}
+                        </div>
+                        <p class="text-slate-700 text-sm leading-relaxed mt-3 whitespace-pre-line">
+                            {{ section.content }}
+                        </p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                <p class="text-slate-500 font-medium">No sections available matching your search criteria.</p>
+            </div>
+        {% endif %}
+
+    </main>
+
+</body>
+</html>

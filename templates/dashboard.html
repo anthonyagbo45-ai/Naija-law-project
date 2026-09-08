@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Nigerian Law Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Navigation Header -->
+    <nav class="bg-emerald-900 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="/dashboard" class="text-xl font-bold flex items-center gap-2">
+                <span>📜</span> Nigerian Law Portal
+            </a>
+            
+            <div class="flex items-center gap-6 text-sm">
+                <a href="/dashboard" class="text-white font-bold border-b-2 border-emerald-400 pb-1">Dashboard</a>
+                <a href="/laws" class="text-emerald-200 hover:text-white transition-colors">Statutes Directory</a>
+                <a href="/ai-search" class="text-emerald-200 hover:text-white transition-colors">AI Legal Search</a>
+                <div class="h-4 w-px bg-emerald-700"></div>
+                <span class="text-slate-300 font-medium">{{ current_user.full_name }}</span>
+                <a href="/logout" class="bg-emerald-800 hover:bg-emerald-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-200 hover:text-white transition-colors">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto p-6 flex-grow w-full space-y-8">
+
+        <!-- Welcome Banner -->
+        <div class="bg-gradient-to-r from-emerald-800 to-emerald-950 text-white rounded-2xl p-6 md:p-8 shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold">Welcome back, {{ current_user.full_name }} 👋</h1>
+                <p class="text-emerald-200 text-sm mt-1">Access Nigerian statutes, research legal precedent, and generate AI insights.</p>
+            </div>
+            <a href="/ai-search" class="bg-white text-emerald-900 hover:bg-emerald-50 px-5 py-2.5 rounded-xl font-semibold text-sm transition-colors shadow-sm flex items-center gap-2 shrink-0">
+                <span>🤖</span> Start Legal Research
+            </a>
+        </div>
+
+        <!-- Analytics / Key Metrics -->
+        <section>
+            <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Platform Overview</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="bg-emerald-100 text-emerald-800 p-3 rounded-lg text-2xl">📖</div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase">Total Statutes</p>
+                        <p class="text-2xl font-bold text-slate-900">{{ total_statutes }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="bg-blue-100 text-blue-800 p-3 rounded-lg text-2xl">📑</div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase">Indexed Sections</p>
+                        <p class="text-2xl font-bold text-slate-900">{{ total_sections }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="bg-purple-100 text-purple-800 p-3 rounded-lg text-2xl">📂</div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase">Legal Categories</p>
+                        <p class="text-2xl font-bold text-slate-900">{{ total_categories }}</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="bg-amber-100 text-amber-800 p-3 rounded-lg text-2xl">👤</div>
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase">Active Account</p>
+                        <p class="text-sm font-bold text-slate-900 truncate max-w-[140px]">{{ current_user.email }}</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Quick Launch Actions & Featured Legal Frameworks -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Featured Statutes (2 Cols) -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-slate-900">Featured Statutes</h2>
+                    <a href="/laws" class="text-xs font-semibold text-emerald-700 hover:text-emerald-800 flex items-center gap-1">
+                        View All Acts →
+                    </a>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100">
+                    {% for statute in featured_statutes %}
+                        <div class="p-5 flex justify-between items-start gap-4 hover:bg-slate-50 transition-colors">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
+                                        {{ statute.abbreviation }}
+                                    </span>
+                                    <span class="text-xs text-slate-400">• {{ statute.category }}</span>
+                                </div>
+                                <h3 class="text-sm font-bold text-slate-900">{{ statute.title }}</h3>
+                                <p class="text-xs text-slate-600 line-clamp-2">{{ statute.description }}</p>
+                            </div>
+                            <a href="/laws/{{ statute.id }}" class="bg-slate-100 hover:bg-emerald-700 hover:text-white text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0">
+                                Open
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Quick Action Cards (1 Col) -->
+            <div class="space-y-4">
+                <h2 class="text-lg font-bold text-slate-900">Research Tools</h2>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
+                    <a href="/ai-search" class="block p-4 border border-emerald-200 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🤖</span>
+                            <div>
+                                <h4 class="text-sm font-bold text-emerald-950">AI Statutory Analysis</h4>
+                                <p class="text-xs text-emerald-800 mt-0.5">Input legal facts and cross-check against provisions.</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="/laws" class="block p-4 border border-slate-200 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🔍</span>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Statute Directory Search</h4>
+                                <p class="text-xs text-slate-600 mt-0.5">Filter Acts by category, jurisdiction, or keyword.</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <p>Nigerian Law Portal © 2026 — Legal Research & Statutory Database Engine</p>
+    </footer>
+
+</body>
+</html>
