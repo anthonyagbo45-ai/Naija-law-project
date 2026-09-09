@@ -6,40 +6,40 @@
     <title>AI Legal Assistant | Nigerian Law Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 min-h-screen">
+<body class="bg-slate-100 font-sans text-slate-800 min-h-screen flex flex-col">
 
     <!-- Navbar Header -->
     <nav class="bg-emerald-900 text-white p-4 shadow-md sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
             <a href="/dashboard" class="text-xl font-bold flex items-center gap-2">
                 <span>📜</span> Nigerian Law Portal
             </a>
-            <div class="flex items-center gap-4 text-sm overflow-x-auto">
+            <div class="flex items-center gap-5 text-sm overflow-x-auto">
                 <a href="/dashboard" class="text-emerald-200 hover:text-white transition-colors">Dashboard</a>
                 <a href="/laws" class="text-emerald-200 hover:text-white transition-colors">Statutes</a>
                 <a href="/cases" class="text-emerald-200 hover:text-white transition-colors">Precedents</a>
                 <a href="/student-hub" class="text-emerald-200 hover:text-white transition-colors">Student Hub</a>
-                <a href="/directory" class="text-emerald-200 hover:text-white transition-colors">Directory</a>
+                <a href="/directory" class="text-emerald-200 hover:text-white transition-colors">Legal Directory</a>
                 <a href="/rights-guide" class="text-emerald-200 hover:text-white transition-colors">Rights Guide</a>
                 <a href="/ai-search" class="text-white font-bold border-b-2 border-emerald-400 pb-1">AI Search</a>
-                <span class="text-emerald-700 hidden sm:inline">|</span>
-                <span class="text-slate-300 hidden md:inline">{{ current_user.full_name }}</span>
+                <div class="h-4 w-px bg-emerald-700 hidden sm:block"></div>
+                <span class="text-slate-300 font-medium hidden md:inline">{{ current_user.full_name }}</span>
                 <a href="/logout" class="bg-emerald-800 hover:bg-emerald-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-200 hover:text-white transition-colors shrink-0">Logout</a>
             </div>
         </div>
     </nav>
 
     <!-- Main Container -->
-    <main class="max-w-4xl mx-auto p-6">
+    <main class="max-w-4xl mx-auto p-6 flex-grow w-full space-y-8">
 
-        <div class="mb-8 text-center">
-            <h1 class="text-3xl font-bold text-slate-900">AI Legal Research Assistant</h1>
-            <p class="text-slate-600 mt-2">Ask legal questions or describe factual scenarios to analyze them against Nigerian statutes.</p>
+        <div class="text-center space-y-2">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">AI Legal Research Assistant</h1>
+            <p class="text-slate-600 text-sm">Ask legal questions or describe factual scenarios to analyze them against Nigerian statutes.</p>
         </div>
 
         <!-- Query Form -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-            <form action="/ai-search" method="POST" class="space-y-5">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <form id="ai-search-form" action="/ai-search" method="POST" class="space-y-5">
 
                 <!-- Target Audience / Response Mode Selector -->
                 <div>
@@ -76,7 +76,7 @@
                     <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Legal Scenario or Question</label>
                     <textarea id="user_query" name="user_query" rows="4" required 
                         placeholder="e.g., What constitutional rights protect an individual against unlawful police detention in Nigeria?"
-                        class="w-full p-4 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm text-slate-800 border-slate-200">{{ user_query }}</textarea>
+                        class="w-full p-4 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm text-slate-800 focus:bg-white transition-all bg-slate-50">{{ user_query if user_query else '' }}</textarea>
                 </div>
 
                 <!-- Quick Sample Question Pills -->
@@ -96,8 +96,9 @@
                 </div>
 
                 <div class="flex justify-end pt-2">
-                    <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm">
-                        <span>🤖</span> Analyze with AI
+                    <button type="submit" id="submit-btn" class="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm">
+                        <span id="btn-icon">🤖</span> 
+                        <span id="btn-text">Analyze with AI</span>
                     </button>
                 </div>
             </form>
@@ -111,27 +112,27 @@
                     <h2 class="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
                         <span>💡</span> AI Legal Analysis
                     </h2>
-                    <div class="prose max-w-none text-slate-700 text-sm leading-relaxed whitespace-pre-line">
+                    <div class="text-slate-700 text-sm leading-relaxed whitespace-pre-line">
                         {{ ai_response }}
                     </div>
                 </div>
 
                 <!-- Grounding Statutory Provisions -->
                 {% if referenced_sections %}
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                        <h3 class="text-base font-bold text-slate-900 mb-4">Referenced Statutory Sections</h3>
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-4">
+                        <h3 class="text-base font-bold text-slate-900">Referenced Statutory Sections</h3>
                         <div class="space-y-3">
                             {% for sec in referenced_sections %}
-                                <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
-                                            {{ sec.statute.abbreviation }} - {{ sec.section_number }}
+                                <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg space-y-1">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded">
+                                            {{ sec.statute.abbreviation if sec.statute else 'Statute' }} - Section {{ sec.section_number }}
                                         </span>
                                         {% if sec.title %}
                                             <span class="text-xs font-semibold text-slate-600">{{ sec.title }}</span>
                                         {% endif %}
                                     </div>
-                                    <p class="text-xs text-slate-600 mt-2 italic">"{{ sec.content }}"</p>
+                                    <p class="text-xs text-slate-600 italic pt-1">"{{ sec.content }}"</p>
                                 </div>
                             {% endfor %}
                         </div>
@@ -142,10 +143,26 @@
 
     </main>
 
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <p>Nigerian Law Portal © 2026 — Legal Research & Statutory Database Engine</p>
+    </footer>
+
     <script>
         function setQuery(text) {
             document.getElementById('user_query').value = text;
         }
+
+        document.getElementById('ai-search-form').addEventListener('submit', function() {
+            const btn = document.getElementById('submit-btn');
+            const icon = document.getElementById('btn-icon');
+            const text = document.getElementById('btn-text');
+            
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+            icon.textContent = '⏳';
+            text.textContent = 'Analyzing Statutory Data...';
+        });
     </script>
 
 </body>

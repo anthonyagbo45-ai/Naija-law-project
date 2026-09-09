@@ -51,21 +51,21 @@
             <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Platform Overview</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 
-                <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
+                <a href="/laws" class="bg-white hover:border-emerald-300 transition-colors rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
                     <div class="bg-emerald-100 text-emerald-800 p-3 rounded-lg text-2xl">📖</div>
                     <div>
                         <p class="text-xs text-slate-500 font-semibold uppercase">Total Statutes</p>
                         <p class="text-2xl font-bold text-slate-900">{{ total_statutes }}</p>
                     </div>
-                </div>
+                </a>
 
-                <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
+                <a href="/laws" class="bg-white hover:border-blue-300 transition-colors rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
                     <div class="bg-blue-100 text-blue-800 p-3 rounded-lg text-2xl">📑</div>
                     <div>
                         <p class="text-xs text-slate-500 font-semibold uppercase">Indexed Sections</p>
                         <p class="text-2xl font-bold text-slate-900">{{ total_sections }}</p>
                     </div>
-                </div>
+                </a>
 
                 <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center gap-4">
                     <div class="bg-purple-100 text-purple-800 p-3 rounded-lg text-2xl">📂</div>
@@ -98,25 +98,35 @@
                     </a>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100">
-                    {% for statute in featured_statutes %}
-                        <div class="p-5 flex justify-between items-start gap-4 hover:bg-slate-50 transition-colors">
-                            <div class="space-y-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
-                                        {{ statute.abbreviation }}
-                                    </span>
-                                    <span class="text-xs text-slate-400">• {{ statute.category }}</span>
+                {% if featured_statutes %}
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 divide-y divide-slate-100">
+                        {% for statute in featured_statutes %}
+                            <div class="p-5 flex justify-between items-start gap-4 hover:bg-slate-50 transition-colors">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">
+                                            {{ statute.abbreviation }}
+                                        </span>
+                                        <span class="text-xs text-slate-400">• {{ statute.category }}</span>
+                                    </div>
+                                    <h3 class="text-sm font-bold text-slate-900">
+                                        <a href="/laws/{{ statute.id }}" class="hover:text-emerald-700 transition-colors">
+                                            {{ statute.title }}
+                                        </a>
+                                    </h3>
+                                    <p class="text-xs text-slate-600 line-clamp-2">{{ statute.description }}</p>
                                 </div>
-                                <h3 class="text-sm font-bold text-slate-900">{{ statute.title }}</h3>
-                                <p class="text-xs text-slate-600 line-clamp-2">{{ statute.description }}</p>
+                                <a href="/laws/{{ statute.id }}" class="bg-emerald-50 hover:bg-emerald-700 hover:text-white text-emerald-800 border border-emerald-200 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0">
+                                    Open
+                                </a>
                             </div>
-                            <a href="/laws/{{ statute.id }}" class="bg-slate-100 hover:bg-emerald-700 hover:text-white text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors shrink-0">
-                                Open
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="bg-white rounded-xl border border-slate-200 p-8 text-center text-slate-500">
+                        No statutes available in database.
+                    </div>
+                {% endif %}
             </div>
 
             <!-- Quick Action Cards (1 Col) -->

@@ -31,6 +31,13 @@
     <!-- Main Content -->
     <main class="max-w-5xl mx-auto p-6">
 
+        <!-- Back Button -->
+        <div class="mb-4">
+            <a href="/laws" class="text-xs font-bold text-emerald-800 hover:text-emerald-900 flex items-center gap-1">
+                ← Back to All Statutes
+            </a>
+        </div>
+
         <!-- Header Card -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 mb-8">
             <div class="flex items-center gap-3 mb-3 flex-wrap">
@@ -54,16 +61,30 @@
             </p>
         </div>
 
+        <!-- Quick Jump Section Bar -->
+        {% if sections %}
+            <div class="bg-white rounded-xl border border-slate-200 p-4 mb-6 shadow-sm">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">Quick Section Jump</span>
+                <div class="flex flex-wrap gap-2">
+                    {% for section in sections %}
+                        <a href="#sec-{{ section.id }}" class="text-xs font-semibold bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 px-2.5 py-1 rounded-md transition-colors border border-slate-200">
+                            {{ section.section_number }}
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
         <!-- Section Search & Filter -->
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
             <h2 class="text-xl font-bold text-slate-900">
                 Sections & Provisions ({{ sections|length }})
             </h2>
 
-            <form action="/laws/{{ statute.id }}" method="GET" class="flex gap-2">
+            <form action="/laws/{{ statute.id }}" method="GET" class="flex gap-2 w-full sm:w-auto">
                 <input type="text" name="q" value="{{ section_query }}" 
                     placeholder="Search sections..." 
-                    class="px-3.5 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-white">
+                    class="px-3.5 py-1.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-white flex-grow sm:w-64">
                 <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors">
                     Search
                 </button>
@@ -72,18 +93,25 @@
 
         <!-- Sections List -->
         {% if sections %}
-            <div class="space-y-4">
+            <div class="space-y-6">
                 {% for section in sections %}
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:border-emerald-300 transition-colors">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded">
-                                {{ section.section_number }}
-                            </span>
-                            {% if section.title %}
-                                <h3 class="text-base font-bold text-slate-900 flex-1 ml-3">
-                                    {{ section.title }}
-                                </h3>
-                            {% endif %}
+                    <div id="sec-{{ section.id }}" class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:border-emerald-300 transition-colors scroll-mt-20">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded">
+                                    {{ section.section_number }}
+                                </span>
+                                {% if section.title %}
+                                    <h3 class="text-base font-bold text-slate-900">
+                                        {{ section.title }}
+                                    </h3>
+                                {% endif %}
+                            </div>
+
+                            <button onclick="navigator.clipboard.writeText('{{ statute.abbreviation }} {{ section.section_number }}: {{ section.title or '' }}'); alert('Citation copied!');" 
+                                class="text-xs text-slate-400 hover:text-emerald-700 font-medium transition-colors flex items-center gap-1">
+                                📋 Copy Citation
+                            </button>
                         </div>
 
                         <p class="text-slate-700 text-sm leading-relaxed mt-3 whitespace-pre-line">
@@ -111,7 +139,7 @@
                         {% endif %}
 
                         <!-- Quick AI Analysis Launcher -->
-                        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end gap-2">
+                        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap justify-end gap-2">
                             <form action="/ai-search" method="POST" class="inline">
                                 <input type="hidden" name="user_query" value="Explain {{ statute.abbreviation }} {{ section.section_number }} ({{ section.title or '' }}) and its real-world application in Nigeria.">
                                 <input type="hidden" name="mode" value="legal">
@@ -132,8 +160,13 @@
                 {% endfor %}
             </div>
         {% else %}
-            <div class="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                <p class="text-slate-500 font-medium">No sections available matching your search criteria.</p>
+            <div class="bg-white rounded-xl border border-slate-200 p-12 text-center space-y-3">
+                <span class="text-3xl block">🔍</span>
+                <p class="text-slate-700 font-bold">No sections found for this statute</p>
+                <p class="text-slate-500 text-sm">Try clearing your search query or choosing another statute directory.</p>
+                <a href="/laws/{{ statute.id }}" class="inline-block text-xs font-semibold bg-emerald-700 text-white px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors">
+                    Reset Section Filter
+                </a>
             </div>
         {% endif %}
 

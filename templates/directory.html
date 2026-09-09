@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal Directory | Nigerian Law Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Navbar Header -->
+    <nav class="bg-emerald-900 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="/dashboard" class="text-xl font-bold flex items-center gap-2">
+                <span>📜</span> Nigerian Law Portal
+            </a>
+            
+            <div class="flex items-center gap-5 text-sm overflow-x-auto">
+                <a href="/dashboard" class="text-emerald-200 hover:text-white transition-colors">Dashboard</a>
+                <a href="/laws" class="text-emerald-200 hover:text-white transition-colors">Statutes</a>
+                <a href="/cases" class="text-emerald-200 hover:text-white transition-colors">Precedents</a>
+                <a href="/student-hub" class="text-emerald-200 hover:text-white transition-colors">Student Hub</a>
+                <a href="/directory" class="text-white font-bold border-b-2 border-emerald-400 pb-1">Legal Directory</a>
+                <a href="/rights-guide" class="text-emerald-200 hover:text-white transition-colors">Rights Guide</a>
+                <a href="/ai-search" class="text-emerald-200 hover:text-white transition-colors">AI Search</a>
+                <div class="h-4 w-px bg-emerald-700 hidden sm:block"></div>
+                <span class="text-slate-300 font-medium hidden md:inline">{{ current_user.full_name }}</span>
+                <a href="/logout" class="bg-emerald-800 hover:bg-emerald-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-200 hover:text-white transition-colors shrink-0">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto p-6 flex-grow w-full space-y-8">
+
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900">Legal Directory</h1>
+                <p class="text-slate-600 text-sm mt-1">Find courts, legal aid services, and official contact info across Nigeria.</p>
+            </div>
+        </div>
+
+        <!-- 2-Step Search Form -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+            <form action="{{ url_for('legal_directory') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                
+                <!-- 1. Select / Type Firm or Court Name -->
+                <div class="md:col-span-5">
+                    <label for="q" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                        1. Law Firm or Court Name
+                    </label>
+                    <input type="text" id="q" name="q" value="{{ search_query if search_query else '' }}" 
+                        placeholder="e.g. High Court, Legal Aid Council, Ikeja..." 
+                        class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-slate-50 focus:bg-white transition-all">
+                </div>
+
+                <!-- 2. State Dropdown Select -->
+                <div class="md:col-span-4">
+                    <label for="state" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                        2. State / Region
+                    </label>
+                    <select id="state" name="state" 
+                        class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-slate-50 focus:bg-white transition-all">
+                        <option value="">-- All States / Regions --</option>
+                        {% for st in states %}
+                            <option value="{{ st }}" {% if selected_state == st %}selected{% endif %}>
+                                {{ st }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="md:col-span-3 flex items-end gap-2">
+                    <button type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-1.5">
+                        <span>🔍</span> Filter
+                    </button>
+                    {% if selected_state or search_query %}
+                        <a href="{{ url_for('legal_directory') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold px-3 py-2 rounded-lg text-sm transition-colors text-center">
+                            Reset
+                        </a>
+                    {% endif %}
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Directory Output State Machine -->
+        <div class="directory-results">
+            {% if not has_searched %}
+                <!-- STATE 1: INITIAL PAGE LOAD (NO SEARCH EXECUTED YET) -->
+                <div class="bg-white rounded-xl border border-slate-200 p-10 text-center space-y-3">
+                    <span class="text-4xl block">🔍</span>
+                    <p class="text-slate-600 text-base max-w-lg mx-auto">
+                        Select a state or enter search terms above to find court locations and legal directory contacts.
+                    </p>
+                </div>
+
+            {% elif entries %}
+                <!-- STATE 2: MATCHING RESULTS FOUND -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for entry in entries %}
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between hover:border-emerald-300 transition-all space-y-4">
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                        {{ entry.organization_type }}
+                                    </span>
+                                    <span class="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2.5 py-0.5 rounded border border-emerald-200">
+                                        📍 {{ entry.state }}
+                                    </span>
+                                </div>
+
+                                <h2 class="text-base font-bold text-slate-900 leading-snug">
+                                    {{ entry.name }}
+                                </h2>
+
+                                <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-lg text-xs space-y-1">
+                                    <p class="font-bold text-slate-700 flex items-center gap-1.5">
+                                        <span>🏢</span> Physical Address:
+                                    </p>
+                                    <p class="text-slate-600 leading-relaxed pl-5">
+                                        {{ entry.address }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="pt-3 border-t border-slate-100 flex flex-col gap-1 text-xs text-slate-500">
+                                {% if entry.email %}
+                                    <div class="truncate">
+                                        📧 {{ entry.email }}
+                                    </div>
+                                {% endif %}
+                                {% if entry.phone %}
+                                    <div class="text-slate-700 font-semibold">
+                                        📞 {{ entry.phone }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                        </div>
+                    {% endfor %}
+                </div>
+
+            {% else %}
+                <!-- STATE 3: SEARCH EXECUTED, BUT NO MATCHES FOUND -->
+                <div class="bg-amber-50 rounded-xl border border-amber-200 p-8 text-center space-y-3">
+                    <span class="text-3xl block">🏛️</span>
+                    <h3 class="text-base font-bold text-amber-900">
+                        No directory listings found matching your search criteria.
+                    </h3>
+                    <p class="text-amber-700 text-sm max-w-md mx-auto">
+                        Try broadening your keywords or selecting a different state to locate legal services.
+                    </p>
+                    <div class="pt-2">
+                        <a href="{{ url_for('legal_directory') }}" class="inline-block bg-emerald-700 text-white font-semibold text-xs px-4 py-2 rounded-lg hover:bg-emerald-800 transition-colors">
+                            Reset Filters
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <p>Nigerian Law Portal © 2026 — Legal Research & Directory Engine</p>
+    </footer>
+
+</body>
+</html>
