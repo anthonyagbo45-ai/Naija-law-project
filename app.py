@@ -64,6 +64,57 @@ class StatuteSection(db.Model):
     statute = db.relationship('Statute', backref=db.backref('sections', lazy=True))
 
 
+# --- ADDITIVE DATA MODELS ---
+
+class CaseLaw(db.Model):
+    """Model for judicial precedents (Lawyers & Legal Research)"""
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(255), nullable=False)          # e.g. "FRN v. Anache & Ors"
+    citation = db.Column(db.String(100), nullable=False)       # e.g. "(2004) 14 NWLR (Pt. 893) 245"
+    court = db.Column(db.String(100), nullable=False)          # e.g. "Supreme Court of Nigeria"
+    year = db.Column(db.Integer, nullable=False)
+    summary = db.Column(db.Text, nullable=False)
+    ratio_decidendi = db.Column(db.Text, nullable=False)
+    statute_section_id = db.Column(db.Integer, db.ForeignKey('statute_section.id'), nullable=True)
+
+    statute_section = db.relationship('StatuteSection', backref=db.backref('cases', lazy=True))
+
+
+class CaseBrief(db.Model):
+    """Model for structured law student case briefs"""
+    id = db.Column(db.Integer, primary_key=True)
+    case_name = db.Column(db.String(255), nullable=False)
+    citation = db.Column(db.String(100), nullable=False)
+    facts = db.Column(db.Text, nullable=False)
+    issue = db.Column(db.Text, nullable=False)
+    held = db.Column(db.Text, nullable=False)
+    ratio = db.Column(db.Text, nullable=False)
+
+
+class QuizQuestion(db.Model):
+    """Model for bar exam and law student practice questions"""
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.String(100), nullable=False)       # e.g. "Constitutional Law", "Criminal Litigation"
+    question = db.Column(db.Text, nullable=False)
+    option_a = db.Column(db.String(255), nullable=False)
+    option_b = db.Column(db.String(255), nullable=False)
+    option_c = db.Column(db.String(255), nullable=False)
+    option_d = db.Column(db.String(255), nullable=False)
+    correct_option = db.Column(db.String(1), nullable=False)  # "A", "B", "C", or "D"
+    explanation = db.Column(db.Text, nullable=False)
+
+
+class LegalDirectory(db.Model):
+    """Model for public legal aid, NGO, and court office contacts"""
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    organization_type = db.Column(db.String(100), nullable=False) # e.g. "Legal Aid Council", "NGO", "NBA Branch"
+    state = db.Column(db.String(50), nullable=False)
+    address = db.Column(db.Text, nullable=False)
+    phone = db.Column(db.String(50), nullable=True)
+    email = db.Column(db.String(120), nullable=True)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return db.session.get(User, int(user_id))
@@ -92,8 +143,7 @@ with app.app_context():
         penal_code = Statute(
             title="Penal Code Law",
             abbreviation="Penal Code",
-            category="Criminal Law",
-            jurisdiction="Northern Nigeria",
+            category="Northern Nigeria",
             description="Primary criminal law code governing criminal liability and offenses across Northern Nigerian states."
         )
         vapa = Statute(
@@ -136,6 +186,51 @@ with app.app_context():
             )
         ]
         db.session.add_all(cfrn_sections)
+        db.session.commit()
+
+    # Seed Case Law sample data
+    if CaseLaw.query.count() == 0:
+        sec_33 = StatuteSection.query.filter_by(section_number="Section 33").first()
+        sec_33_id = sec_33.id if sec_33 else None
+
+        sample_case = CaseLaw(
+            title="Bello v. Attorney-General of Oyo State",
+            citation="(1986) 5 NWLR (Pt. 45) 828",
+            court="Supreme Court of Nigeria",
+            year=1986,
+            summary="A landmark decision on the constitutional right to life and procedural fairness prior to execution.",
+            ratio_decidendi="Execution of an accused person while his appeal is pending violates the fundamental right to life under the Constitution.",
+            statute_section_id=sec_33_id
+        )
+        db.session.add(sample_case)
+        db.session.commit()
+
+    # Seed Legal Directory sample data
+    if LegalDirectory.query.count() == 0:
+        sample_dir = LegalDirectory(
+            name="Legal Aid Council of Nigeria (HQ)",
+            organization_type="Legal Aid Council",
+            state="FCT - Abuja",
+            address="No. 22 Port Harcourt Crescent, Off Gimbiya Street, Area 11, Garki, Abuja",
+            phone="+234 9 291 8221",
+            email="info@legalaidcouncil.gov.ng"
+        )
+        db.session.add(sample_dir)
+        db.session.commit()
+
+    # Seed Quiz sample data
+    if QuizQuestion.query.count() == 0:
+        sample_quiz = QuizQuestion(
+            subject="Constitutional Law",
+            question="Which section of the CFRN 1999 guarantees the Right to Life?",
+            option_a="Section 33",
+            option_b="Section 34",
+            option_c="Section 35",
+            option_d="Section 36",
+            correct_option="A",
+            explanation="Section 33(1) guarantees that every person has a right to life."
+        )
+        db.session.add(sample_quiz)
         db.session.commit()
 
 
@@ -299,6 +394,7 @@ def ai_search():
     user_query = ""
     ai_response = ""
     referenced_sections = []
+    response_mode = request.form.get("mode", "legal")  # "legal", "case_brief", or "plain_english"
 
     if request.method == "POST":
         user_query = (request.form.get("user_query") or "").strip()
@@ -319,19 +415,29 @@ def ai_search():
                 for sec in referenced_sections
             ])
 
-            prompt = f"""You are an expert legal assistant specializing in Nigerian Statutory Law.
-Analyze the user's question or scenario based on statutory provisions under Nigerian Law.
+            # Adjust Persona Instructions based on Response Mode
+            if response_mode == "plain_english":
+                persona_instructions = """You are a legal assistant explaining Nigerian law to citizens and non-lawyers.
+1. Translate legal terminology into simple, clear, everyday English.
+2. Clearly explain what rights or duties apply in practical terms.
+3. Keep sentences short and accessible."""
+            elif response_mode == "case_brief":
+                persona_instructions = """You are a legal scholar assisting a law student.
+1. Structure your analysis as a formal Case Brief / Legal Study Note.
+2. Outline key statutory principles using headings: [Facts/Context], [Legal Issues], [Statutory Provisions], and [Key Rule/Ratio]."""
+            else:
+                persona_instructions = """You are an expert legal assistant specializing in Nigerian Statutory Law.
+1. Provide a clear, structured legal opinion analyzing the query.
+2. Specifically cite constitutional or statutory sections (e.g., CFRN 1999, Penal Code, VAPA) relevant to the situation.
+3. Keep the tone professional, precise, and objective."""
+
+            prompt = f"""{persona_instructions}
 
 USER QUERY:
 {user_query}
 
 RELEVANT STATUTORY PROVISIONS IN DATABASE:
 {context_text if context_text else 'No direct sections found in local database.'}
-
-INSTRUCTIONS:
-1. Provide a clear, structured legal opinion analyzing the query.
-2. Specifically cite the constitutional or statutory sections (e.g., CFRN 1999, Penal Code, VAPA) relevant to the situation.
-3. Keep the tone professional, precise, and objective.
 """
 
             # 3. Call Gemini API
@@ -351,8 +457,62 @@ INSTRUCTIONS:
         "ai_search.html",
         user_query=user_query,
         ai_response=ai_response,
-        referenced_sections=referenced_sections
+        referenced_sections=referenced_sections,
+        response_mode=response_mode
     )
+
+
+# --- ADDITIVE ROUTES FOR FEATURE EXPANSION ---
+
+# 1. LAWYERS: Case Law & Precedents
+@app.route("/cases")
+@login_required
+def case_directory():
+    q = request.args.get("q", "").strip()
+    query = CaseLaw.query
+    if q:
+        query = query.filter(
+            (CaseLaw.title.ilike(f"%{q}%")) |
+            (CaseLaw.citation.ilike(f"%{q}%")) |
+            (CaseLaw.ratio_decidendi.ilike(f"%{q}%"))
+        )
+    cases = query.all()
+    return render_template("cases.html", cases=cases, q=q)
+
+
+@app.route("/cases/<int:case_id>")
+@login_required
+def case_detail(case_id):
+    case = db.session.get(CaseLaw, case_id)
+    if not case:
+        flash("Case precedent not found.", "warning")
+        return redirect(url_for("case_directory"))
+    return render_template("case_detail.html", case=case)
+
+
+# 2. LAW STUDENTS: Study Hub & Quizzes
+@app.route("/student-hub")
+@login_required
+def student_hub():
+    briefs = CaseBrief.query.limit(5).all()
+    quizzes = QuizQuestion.query.limit(10).all()
+    return render_template("student_hub.html", briefs=briefs, quizzes=quizzes)
+
+
+# 3. CITIZENS & NON-CITIZENS: Legal Directory & Rights Guides
+@app.route("/directory")
+def legal_directory():
+    state_filter = request.args.get("state", "").strip()
+    query = LegalDirectory.query
+    if state_filter:
+        query = query.filter(LegalDirectory.state.ilike(f"%{state_filter}%"))
+    entries = query.all()
+    return render_template("directory.html", entries=entries, selected_state=state_filter)
+
+
+@app.route("/rights-guide")
+def rights_guide():
+    return render_template("rights_guide.html")
 
 
 if __name__ == "__main__":

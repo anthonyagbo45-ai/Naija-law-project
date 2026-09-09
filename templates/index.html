@@ -38,7 +38,7 @@
         <section class="bg-gradient-to-b from-emerald-950 via-emerald-900 to-slate-900 text-white py-20 px-6">
             <div class="max-w-4xl mx-auto text-center space-y-6">
                 <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-800/60 text-emerald-300 text-xs font-semibold border border-emerald-700">
-                    ⚡ Powered by Gemini 2.5 Legal Intelligence
+                    ⚡ Powered by AI Statutory Intelligence
                 </span>
                 
                 <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight">
@@ -50,10 +50,21 @@
                     Search the Constitution, Criminal Code, Penal Code, and specialized Acts. Get real-time statutory citations and AI-assisted case analysis in seconds.
                 </p>
 
-                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
+                <!-- Quick Tryout Search Box -->
+                <div class="max-w-2xl mx-auto mt-6 bg-white/10 backdrop-blur-md border border-emerald-500/30 p-2 rounded-2xl shadow-xl">
+                    <form action="{{ '/ai-search' if current_user.is_authenticated else '/register' }}" method="{{ 'POST' if current_user.is_authenticated else 'GET' }}" class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" name="user_query" placeholder="e.g. What rights protect against unlawful arrest under CFRN 1999?" required
+                            class="flex-grow px-4 py-3 rounded-xl bg-slate-900/80 text-white placeholder-slate-400 text-sm border border-slate-700 focus:outline-none focus:border-emerald-400">
+                        <button type="submit" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3 rounded-xl text-sm transition-colors flex items-center justify-center gap-2 shrink-0">
+                            <span>🤖</span> Analyze Now
+                        </button>
+                    </form>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 pt-2">
                     {% if current_user.is_authenticated %}
                         <a href="/ai-search" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-6 py-3.5 rounded-xl font-bold text-sm shadow-lg transition-colors flex items-center justify-center gap-2">
-                            <span>🤖</span> Start Legal Query
+                            <span>🤖</span> Full AI Legal Query
                         </a>
                     {% else %}
                         <a href="/register" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-6 py-3.5 rounded-xl font-bold text-sm shadow-lg transition-colors">
@@ -63,6 +74,36 @@
                             Log In to Dashboard
                         </a>
                     {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Tailored Personas Section -->
+        <section class="bg-slate-100 py-12 px-6 border-b border-slate-200">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Tailored AI Experiences</h2>
+                    <p class="text-2xl font-bold text-slate-900">Designed for Every Legal Audience</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 text-center space-y-2">
+                        <span class="text-3xl block">⚖️</span>
+                        <h3 class="font-bold text-slate-900 text-base">Legal Practitioners</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">Formal legal memos, precise statutory section references, and judicial ratio decidendi for court filings.</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 text-center space-y-2">
+                        <span class="text-3xl block">🎓</span>
+                        <h3 class="font-bold text-slate-900 text-base">Law Students</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">Structured case briefs, IRAC framework analysis, and study notes for Nigerian Law School and universities.</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 text-center space-y-2">
+                        <span class="text-3xl block">🛡️</span>
+                        <h3 class="font-bold text-slate-900 text-base">Citizens & Public</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">Plain English constitutional rights guides, tenancy rules, and clear explanations without complex legalese.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -118,24 +159,42 @@
                         <h2 class="text-xs font-bold text-emerald-700 uppercase tracking-wider">Indexed Legislation</h2>
                         <p class="text-2xl font-bold text-slate-900">Featured Acts & Codes</p>
                     </div>
-                    <a href="/register" class="text-sm font-semibold text-emerald-800 hover:text-emerald-900">
+                    <a href="/laws" class="text-sm font-semibold text-emerald-800 hover:text-emerald-900">
                         View Full Directory →
                     </a>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {% for statute in featured_statutes %}
-                        <div class="bg-white p-5 rounded-xl border border-slate-200 space-y-2">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded">
-                                    {{ statute.abbreviation }}
-                                </span>
-                                <span class="text-xs text-slate-400">{{ statute.jurisdiction }}</span>
+                    {% if featured_statutes %}
+                        {% for statute in featured_statutes %}
+                            <div class="bg-white p-5 rounded-xl border border-slate-200 space-y-2 hover:border-emerald-300 transition-colors">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded">
+                                        {{ statute.abbreviation }}
+                                    </span>
+                                    <span class="text-xs text-slate-400">{{ statute.jurisdiction }}</span>
+                                </div>
+                                <h3 class="text-base font-bold text-slate-900">{{ statute.title }}</h3>
+                                <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">{{ statute.description }}</p>
                             </div>
-                            <h3 class="text-base font-bold text-slate-900">{{ statute.title }}</h3>
-                            <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">{{ statute.description }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 space-y-2">
+                            <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded">CFRN 1999</span>
+                            <h3 class="text-base font-bold text-slate-900">Constitution of the Federal Republic of Nigeria</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">Supreme law of Nigeria specifying fundamental rights and governmental powers.</p>
                         </div>
-                    {% endfor %}
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 space-y-2">
+                            <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded">ACJA 2015</span>
+                            <h3 class="text-base font-bold text-slate-900">Administration of Criminal Justice Act</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">Governs criminal procedure, detention guidelines, and trial timelines across federal courts.</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 space-y-2">
+                            <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded">VAPA 2015</span>
+                            <h3 class="text-base font-bold text-slate-900">Violence Against Persons (Prohibition) Act</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">Provides comprehensive legal framework protection against domestic and gender-based violence.</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
         </section>
@@ -143,9 +202,20 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-8 px-6 text-center text-xs space-y-2">
-        <p class="font-semibold text-slate-300">Nigerian Law Portal &copy; 2026</p>
-        <p class="text-slate-500">Legal AI Assistant & Statutory Database for Educational and Professional Research.</p>
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-10 px-6 text-xs">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="space-y-1 text-center md:text-left">
+                <p class="font-bold text-slate-200 text-sm">Nigerian Law Portal &copy; 2026</p>
+                <p class="text-slate-500">Legal AI Assistant & Statutory Database for Educational and Professional Research.</p>
+            </div>
+            
+            <div class="flex flex-wrap gap-4 text-slate-300 font-medium">
+                <a href="/laws" class="hover:text-emerald-400 transition-colors">Statutes Directory</a>
+                <a href="/ai-search" class="hover:text-emerald-400 transition-colors">AI Research</a>
+                <a href="/login" class="hover:text-emerald-400 transition-colors">Login</a>
+                <a href="/register" class="hover:text-emerald-400 transition-colors">Register</a>
+            </div>
+        </div>
     </footer>
 
 </body>

@@ -8,18 +8,23 @@
 </head>
 <body class="bg-slate-100 font-sans text-slate-800 min-h-screen">
 
-    <!-- Navbar -->
-    <nav class="bg-emerald-900 text-white p-4 shadow-md">
+    <!-- Navbar Header -->
+    <nav class="bg-emerald-900 text-white p-4 shadow-md sticky top-0 z-50">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <a href="/laws" class="text-xl font-bold flex items-center gap-2">
+            <a href="/dashboard" class="text-xl font-bold flex items-center gap-2">
                 <span>📜</span> Nigerian Law Portal
             </a>
-            <div class="flex items-center gap-4 text-sm">
-                <a href="/laws" class="text-emerald-200 hover:text-white transition-colors">Statutes Directory</a>
-                <a href="/ai-search" class="text-white font-bold border-b-2 border-emerald-400">AI Legal Search</a>
-                <span class="text-emerald-700">|</span>
-                <span class="text-slate-300">{{ current_user.full_name }}</span>
-                <a href="/logout" class="bg-emerald-800 hover:bg-emerald-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-200 hover:text-white transition-colors">Logout</a>
+            <div class="flex items-center gap-4 text-sm overflow-x-auto">
+                <a href="/dashboard" class="text-emerald-200 hover:text-white transition-colors">Dashboard</a>
+                <a href="/laws" class="text-emerald-200 hover:text-white transition-colors">Statutes</a>
+                <a href="/cases" class="text-emerald-200 hover:text-white transition-colors">Precedents</a>
+                <a href="/student-hub" class="text-emerald-200 hover:text-white transition-colors">Student Hub</a>
+                <a href="/directory" class="text-emerald-200 hover:text-white transition-colors">Directory</a>
+                <a href="/rights-guide" class="text-emerald-200 hover:text-white transition-colors">Rights Guide</a>
+                <a href="/ai-search" class="text-white font-bold border-b-2 border-emerald-400 pb-1">AI Search</a>
+                <span class="text-emerald-700 hidden sm:inline">|</span>
+                <span class="text-slate-300 hidden md:inline">{{ current_user.full_name }}</span>
+                <a href="/logout" class="bg-emerald-800 hover:bg-emerald-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-200 hover:text-white transition-colors shrink-0">Logout</a>
             </div>
         </div>
     </nav>
@@ -34,16 +39,64 @@
 
         <!-- Query Form -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 mb-8">
-            <form action="/ai-search" method="POST" class="space-y-4">
+            <form action="/ai-search" method="POST" class="space-y-5">
+
+                <!-- Target Audience / Response Mode Selector -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Legal Scenario or Question</label>
-                    <textarea name="user_query" rows="4" required 
-                        placeholder="e.g., What constitutional rights protect an individual against unlawful police detention in Nigeria?"
-                        class="w-full p-4 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm text-slate-800">{{ user_query }}</textarea>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Select Response Format & Audience</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-emerald-50 transition-colors {{ 'border-emerald-600 bg-emerald-50' if response_mode == 'legal' or not response_mode else 'border-slate-200' }}">
+                            <input type="radio" name="mode" value="legal" class="accent-emerald-700" {{ 'checked' if response_mode == 'legal' or not response_mode }}>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">⚖️ Legal Practitioner</p>
+                                <p class="text-[11px] text-slate-500">Formal legal opinion & statutory analysis</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-emerald-50 transition-colors {{ 'border-emerald-600 bg-emerald-50' if response_mode == 'case_brief' else 'border-slate-200' }}">
+                            <input type="radio" name="mode" value="case_brief" class="accent-emerald-700" {{ 'checked' if response_mode == 'case_brief' }}>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">🎓 Law Student</p>
+                                <p class="text-[11px] text-slate-500">Structured Case Brief & Ratio Decidendi</p>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-3 p-3 border rounded-xl cursor-pointer hover:bg-emerald-50 transition-colors {{ 'border-emerald-600 bg-emerald-50' if response_mode == 'plain_english' else 'border-slate-200' }}">
+                            <input type="radio" name="mode" value="plain_english" class="accent-emerald-700" {{ 'checked' if response_mode == 'plain_english' }}>
+                            <div>
+                                <p class="text-xs font-bold text-slate-900">🛡️ Public / Citizen</p>
+                                <p class="text-[11px] text-slate-500">Plain English rights guide (no legalese)</p>
+                            </div>
+                        </label>
+                    </div>
                 </div>
 
-                <div class="flex justify-end">
-                    <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition-colors flex items-center gap-2">
+                <!-- Textarea Query -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase tracking-wider mb-2">Legal Scenario or Question</label>
+                    <textarea id="user_query" name="user_query" rows="4" required 
+                        placeholder="e.g., What constitutional rights protect an individual against unlawful police detention in Nigeria?"
+                        class="w-full p-4 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm text-slate-800 border-slate-200">{{ user_query }}</textarea>
+                </div>
+
+                <!-- Quick Sample Question Pills -->
+                <div>
+                    <span class="text-xs font-semibold text-slate-500 block mb-2">Sample Prompts:</span>
+                    <div class="flex flex-wrap gap-2">
+                        <button type="button" onclick="setQuery('What constitutional rights protect against unlawful arrest and police detention under Chapter IV of CFRN 1999?')" class="text-xs bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-900 px-3 py-1.5 rounded-full border border-slate-200 transition-colors">
+                            👮 Unlawful Arrest Rights
+                        </button>
+                        <button type="button" onclick="setQuery('What provisions in the Violence Against Persons Prohibition Act (VAPA) protect victims of domestic abuse?')" class="text-xs bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-900 px-3 py-1.5 rounded-full border border-slate-200 transition-colors">
+                            🛡️ VAPA & Domestic Abuse
+                        </button>
+                        <button type="button" onclick="setQuery('Explain Section 33 Right to Life and exceptions under Nigerian Constitutional Law.')" class="text-xs bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-900 px-3 py-1.5 rounded-full border border-slate-200 transition-colors">
+                            📜 Right to Life (Sec 33)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                    <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white px-6 py-2.5 rounded-lg font-semibold text-sm transition-colors flex items-center gap-2 shadow-sm">
                         <span>🤖</span> Analyze with AI
                     </button>
                 </div>
@@ -88,6 +141,12 @@
         {% endif %}
 
     </main>
+
+    <script>
+        function setQuery(text) {
+            document.getElementById('user_query').value = text;
+        }
+    </script>
 
 </body>
 </html>

@@ -15,13 +15,17 @@
                 <span>📜</span> Nigerian Law Portal
             </a>
             
-            <div class="flex items-center gap-6 text-sm">
+            <div class="flex items-center gap-5 text-sm overflow-x-auto">
                 <a href="/dashboard" class="text-white font-bold border-b-2 border-emerald-400 pb-1">Dashboard</a>
-                <a href="/laws" class="text-emerald-200 hover:text-white transition-colors">Statutes Directory</a>
-                <a href="/ai-search" class="text-emerald-200 hover:text-white transition-colors">AI Legal Search</a>
-                <div class="h-4 w-px bg-emerald-700"></div>
-                <span class="text-slate-300 font-medium">{{ current_user.full_name }}</span>
-                <a href="/logout" class="bg-emerald-800 hover:bg-emerald-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-200 hover:text-white transition-colors">
+                <a href="/laws" class="text-emerald-200 hover:text-white transition-colors">Statutes</a>
+                <a href="/cases" class="text-emerald-200 hover:text-white transition-colors">Precedents</a>
+                <a href="/student-hub" class="text-emerald-200 hover:text-white transition-colors">Student Hub</a>
+                <a href="/directory" class="text-emerald-200 hover:text-white transition-colors">Legal Directory</a>
+                <a href="/rights-guide" class="text-emerald-200 hover:text-white transition-colors">Rights Guide</a>
+                <a href="/ai-search" class="text-emerald-200 hover:text-white transition-colors">AI Search</a>
+                <div class="h-4 w-px bg-emerald-700 hidden sm:block"></div>
+                <span class="text-slate-300 font-medium hidden md:inline">{{ current_user.full_name }}</span>
+                <a href="/logout" class="bg-emerald-800 hover:bg-emerald-700 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-200 hover:text-white transition-colors shrink-0">
                     Logout
                 </a>
             </div>
@@ -117,25 +121,55 @@
 
             <!-- Quick Action Cards (1 Col) -->
             <div class="space-y-4">
-                <h2 class="text-lg font-bold text-slate-900">Research Tools</h2>
+                <h2 class="text-lg font-bold text-slate-900">Research & Portal Tools</h2>
 
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
-                    <a href="/ai-search" class="block p-4 border border-emerald-200 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-3">
+                    <a href="/ai-search" class="block p-3.5 border border-emerald-200 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors">
                         <div class="flex items-center gap-3">
-                            <span class="text-2xl">🤖</span>
+                            <span class="text-xl">🤖</span>
                             <div>
-                                <h4 class="text-sm font-bold text-emerald-950">AI Statutory Analysis</h4>
-                                <p class="text-xs text-emerald-800 mt-0.5">Input legal facts and cross-check against provisions.</p>
+                                <h4 class="text-sm font-bold text-emerald-950">AI Legal Research</h4>
+                                <p class="text-xs text-emerald-800 mt-0.5">Statutory interpretation & brief analysis.</p>
                             </div>
                         </div>
                     </a>
 
-                    <a href="/laws" class="block p-4 border border-slate-200 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                    <a href="/cases" class="block p-3.5 border border-slate-200 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
                         <div class="flex items-center gap-3">
-                            <span class="text-2xl">🔍</span>
+                            <span class="text-xl">⚖️</span>
                             <div>
-                                <h4 class="text-sm font-bold text-slate-900">Statute Directory Search</h4>
-                                <p class="text-xs text-slate-600 mt-0.5">Filter Acts by category, jurisdiction, or keyword.</p>
+                                <h4 class="text-sm font-bold text-slate-900">Case Law & Precedents</h4>
+                                <p class="text-xs text-slate-600 mt-0.5">Supreme Court & Appellate ratio decidendi.</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="/student-hub" class="block p-3.5 border border-slate-200 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl">🎓</span>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Law Student Hub</h4>
+                                <p class="text-xs text-slate-600 mt-0.5">Case briefs and Bar Exam practice questions.</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="/rights-guide" class="block p-3.5 border border-slate-200 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl">🛡️</span>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Citizens Rights Guide</h4>
+                                <p class="text-xs text-slate-600 mt-0.5">Plain-language breakdown of fundamental rights.</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="/directory" class="block p-3.5 border border-slate-200 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="text-xl">📍</span>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-900">Legal Directory</h4>
+                                <p class="text-xs text-slate-600 mt-0.5">Find Legal Aid Council & court offices nationwide.</p>
                             </div>
                         </div>
                     </a>
