@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ brief.case_name }} | Case Brief</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 min-h-screen flex flex-col">
+
+    <nav class="bg-emerald-900 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="/dashboard" class="text-xl font-bold flex items-center gap-2">
+                <span>📜</span> Nigerian Law Portal
+            </a>
+            <a href="/student-hub" class="text-emerald-200 hover:text-white text-xs font-semibold">
+                ← Back to Student Hub
+            </a>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto p-6 flex-grow w-full space-y-6">
+
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded">
+                    {{ brief.subject }}
+                </span>
+                <span class="text-xs text-slate-400 font-mono">{{ brief.citation }}</span>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-900">{{ brief.case_name }}</h1>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 shadow-sm border border-slate-200 space-y-6 text-sm">
+            
+            <section class="space-y-2">
+                <h2 class="font-bold text-slate-900 text-base border-b pb-1 border-slate-100 text-emerald-800">
+                    📌 Material Facts
+                </h2>
+                <p class="text-slate-700 leading-relaxed">{{ brief.facts }}</p>
+            </section>
+
+            <section class="space-y-2">
+                <h2 class="font-bold text-slate-900 text-base border-b pb-1 border-slate-100 text-emerald-800">
+                    ❓ Legal Issue(s)
+                </h2>
+                <p class="text-slate-700 leading-relaxed">{{ brief.issue }}</p>
+            </section>
+
+            <section class="space-y-2">
+                <h2 class="font-bold text-slate-900 text-base border-b pb-1 border-slate-100 text-emerald-800">
+                    ⚖️ Court's Holding
+                </h2>
+                <p class="text-slate-700 leading-relaxed">{{ brief.held }}</p>
+            </section>
+
+            <section class="space-y-2 bg-emerald-50/50 p-4 rounded-lg border border-emerald-100">
+                <h2 class="font-bold text-emerald-900 text-base border-b pb-1 border-emerald-200">
+                    💡 Ratio Decidendi
+                </h2>
+                <p class="text-emerald-900 font-medium leading-relaxed">{{ brief.ratio }}</p>
+            </section>
+
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        <p>Nigerian Law Portal © 2026</p>
+    </footer>
+
+</body>
+</html>

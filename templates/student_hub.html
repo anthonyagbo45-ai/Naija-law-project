@@ -60,7 +60,7 @@
                             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hover:border-emerald-300 transition-all space-y-3">
                                 <div class="flex items-start justify-between gap-4">
                                     <h3 class="font-bold text-slate-900 text-base leading-snug">
-                                        {{ brief.title if brief.title else brief.case_name }}
+                                        {{ brief.case_name }}
                                     </h3>
                                     {% if brief.subject %}
                                         <span class="text-xs font-medium bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded border shrink-0">
@@ -70,15 +70,15 @@
                                 </div>
 
                                 <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed">
-                                    {{ brief.summary if brief.summary else brief.principle }}
+                                    {{ brief.ratio }}
                                 </p>
 
                                 <div class="pt-2 flex items-center justify-between text-xs border-t border-slate-100">
                                     <span class="text-slate-400">
-                                        {{ brief.citation if brief.citation else 'Nigerian Case Law' }}
+                                        {{ brief.citation }}
                                     </span>
                                     <a href="/briefs/{{ brief.id }}" class="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1">
-                                        Read Brief <span>→</span>
+                                        Read Full Brief <span>→</span>
                                     </a>
                                 </div>
                             </div>
@@ -118,9 +118,13 @@
                                         </p>
                                     </div>
                                     <span class="text-xs bg-amber-50 text-amber-700 border border-amber-200 font-semibold px-2 py-0.5 rounded shrink-0">
-                                        {{ quiz.questions_count if quiz.questions_count else 'Practice' }}
+                                        {{ quiz.questions|length }} Questions
                                     </span>
                                 </div>
+
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    {{ quiz.description }}
+                                </p>
 
                                 <a href="/quiz/{{ quiz.id }}" class="block w-full text-center bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-2 rounded-lg text-xs transition-colors">
                                     Start Quiz
